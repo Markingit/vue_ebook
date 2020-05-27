@@ -1,6 +1,7 @@
 
 import { mapGetters, mapActions } from 'vuex'
-import { themeList, addCss, removeAllCss } from '../utils/book'
+import { themeList, addCss, removeAllCss, getReadTimByMinute } from '../utils/book'
+import { saveLocation } from '../utils/localstorage'
 export const ebookMixin = {
     computed: {
         ...mapGetters([
@@ -72,5 +73,41 @@ export const ebookMixin = {
                     break
             }
         },
+        refreshLocation () {
+            const currentLocation = this.currentBook.rendition.currentLocation()
+            if (currentLocation && currentLocation.start) {
+                const startCfi = currentLocation.start.cfi
+                const progress = this.currentBook.locations.percentageFromCfi(startCfi)
+                this.setProgress(Math.floor(progress * 100))
+                this.setSection(currentLocation.start.index)
+                saveLocation(this.fileName, startCfi)
+            }
+        },
+        display (target, callback) {
+            if (target) {
+                this.currentBook.rendition.display(target).then(() => {
+                    this.refreshLocation()
+                    if (callback) {
+                        callback()
+                    }
+                })
+            } else {
+                this.currentBook.rendition.display().then(() => {
+                    this.refreshLocation()
+                    if (callback) {
+                        callback()
+                    }
+                })
+            }
+        },
+        hideTitleAndMenu () {
+            //  this.$store.dispatch('setMenuVisible', false)
+            this.setMenuVisible(false)
+            this.setSettingVisible(-1)
+            this.setFontFamilyVisible(false)
+        },
+        getReadTimeText () {
+            return this.$t('book.haveRead').replace('$1', getReadTimByMinute(this.fileName))
+        }
     }
 }
