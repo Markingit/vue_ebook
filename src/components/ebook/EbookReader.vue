@@ -1,6 +1,18 @@
 <template>
-    <div class="ebook-reader">
-        <div id="read"></div>
+
+    <div class = "ebook-reader">
+        <div 
+            class="ebook-reader-mask"
+            @click="onMaskClick"
+            @touchmove="move"
+            @touchend="moveEnd"
+            @mousedown.left="onMouseEnter"
+            @mousemove.left="onMouseMove"
+            @mouseup.left="onMouseEnd"
+            ></div>
+        <div class="read-wrapper">
+            <div id="read"></div>
+        </div>
     </div>
 </template>
 <script>
@@ -195,6 +207,69 @@ export default {
                 this.setIsPaginating(false)
                 this.refreshLocation()
             })
+        },
+        // 手势操作方法 上层蒙版
+        onMaskClick (e) {
+            const offsetX = e.offsetX
+            const width = window.innerWidth
+            if (offsetX > 0 && offsetX < width * 0.3) {
+                this.prevPage()
+            } else if (offsetX > 0 && offsetX > width * 0.7) {
+                this.nextPage()
+            } else {
+                this.toggleTitleAndMenu()
+            }
+        },
+        move (e) {
+            // eslint-disable-next-line no-unused-vars
+            let offsetY = 0
+            if (this.firstOffsetY) {
+                offsetY = e.changedTouches[0].clientY - this.firstOffsetY
+                this.setOffsetY(offsetY)
+            } else {
+                this.firstOffsetY = e.changedTouches[0].clientY
+            }
+            e.preventDefault()
+            e.stopPropagation()
+        },
+        moveEnd (e) {
+            this.setOffsetY(0)
+            this.firstOffsetY = null
+        },
+         onMouseEnter (e) {
+            this.mouseMove = 1
+            this.mouseStartTime = e.timeStamp
+            e.preventDefault()
+            e.stopPropagation()
+        },
+        onMouseMove (e) {
+            if (this.mouseMove === 1) {
+                this.mouseMove = 2
+            } else if (this.mouseMove === 2) {
+                let offsetY = 0
+            if (this.firstOffsetY) {
+                offsetY = e.clientY - this.firstOffsetY
+                this.$store.commit('SET_OFFSETY', offsetY)
+            } else {
+                this.firstOffsetY = e.clientY
+            }
+            }
+            e.preventDefault()
+            e.stopPropagation()
+        },
+        onMouseEnd (e) {
+            if (this.mouseMove === 2) {
+                this.$store.dispatch('setOffsetY', 0)
+                this.firstOffsetY = 0
+                this.mouseMove = 3
+            }
+            this.mouseEndTime = e.timeStamp
+            const time = this.mouseEndTime - this.mouseStartTime
+            if (time < 200) {
+                this.mouseMove = 1
+            }
+            e.preventDefault()
+            e.stopPropagation()
         }
     }
 }

@@ -1,15 +1,40 @@
 <template>
-    <div class="ebook-slide-bookmark">
-        ebook-slide-bookmark
-    </div>
+  <div class="ebook-slide-bookmark">
+    <div class="slide-bookmark-title">{{$t('book.bookmark')}} · {{bookmark ? bookmark.length : 0}}</div>
+    <scroll class="slide-bookmark-list" :top="48" :bottom="48">
+      <div class="slide-bookmark-item" v-for="(item, index) in bookmark" :key="index" @click="display(item.cfi)">
+        <div class="slide-bookmark-item-icon">
+          <div class="icon-bookmark"></div>
+        </div>
+        <div class="slide-bookmark-item-text">{{item.text}}</div>
+      </div>
+    </scroll>
+  </div>
 </template>
-<script>
-export default {
-    
-}
+
+<script type="text/ecmascript-6">
+  import Scroll from '@/components/common/Scroll'
+  import { getBookmark } from '../../utils/localstorage'
+  import { ebookMixin } from '@/utils/mixin'
+
+  export default {
+    mixins: [ebookMixin],
+    components: {
+      Scroll
+    },
+    data () {
+      return {
+        bookmark: null
+      }
+    },
+    mounted () {
+      this.bookmark = getBookmark(this.fileName)
+    }
+  }
 </script>
-<style lang="scss" scoped>
-    @import "../../assets/styles/global";
+
+<style lang="scss" rel="stylesheet/scss" scoped>
+  @import "../../assets/styles/global";
 
   .ebook-slide-bookmark {
     width: 100%;

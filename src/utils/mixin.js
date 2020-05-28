@@ -1,7 +1,7 @@
 
 import { mapGetters, mapActions } from 'vuex'
 import { themeList, addCss, removeAllCss, getReadTimByMinute } from '../utils/book'
-import { saveLocation } from '../utils/localstorage'
+import { saveLocation, getBookmark } from '../utils/localstorage'
 export const ebookMixin = {
     computed: {
         ...mapGetters([
@@ -28,7 +28,16 @@ export const ebookMixin = {
         ]),
         themeList () {
             return themeList(this)
-        }
+        },
+        getSectionName () {
+            if (this.section) {
+              const section = this.currentBook.section(this.section)
+              if (section && section.href && this.currentBook && this.currentBook.navigation) {
+                // return this.currentBook.navigation.get(section.href).label
+                return this.navigation[this.section].label
+              }
+            }
+          }
     },
     methods: {
         ...mapActions([
@@ -80,6 +89,21 @@ export const ebookMixin = {
                 const progress = this.currentBook.locations.percentageFromCfi(startCfi)
                 this.setProgress(Math.floor(progress * 100))
                 this.setSection(currentLocation.start.index)
+
+                // const cfistart = currentLocation.start.cfi
+                // 书签相关保存或者删除当前页书签
+                const bookmark = getBookmark(this.fileName)
+                if (bookmark) {
+                    if (bookmark.some(item => item.cfi === startCfi)) {
+                        this.setIsBookmark(true)
+                    } else {
+                        this.setIsBookmark(false)
+                    }
+                } else {
+                    this.setIsBookmark(false)
+                }
+                // 书签end
+
                 saveLocation(this.fileName, startCfi)
             }
         },

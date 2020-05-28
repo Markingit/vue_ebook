@@ -36,17 +36,18 @@ import { ebookMixin } from '../../utils/mixin'
 // import { getReadTime } from '../../utils/localstorage'
     export default {
         mixins: [ebookMixin],
+        // mixins
         computed: {
             // eslint-disable-next-line vue/return-in-computed-property
-            getSectionName () {
-                // if (this.section) {
-                //     const sectionInfo = this.currentBook.section(this.section)
-                //     if (sectionInfo && sectionInfo.href) {
-                //         return this.currentBook.navigation.get(sectionInfo.href).label
-                //     }
-                // }
-                return this.section ? this.navigation[this.section].label : ''
-            }
+            // getSectionName () {
+            //     // if (this.section) {
+            //     //     const sectionInfo = this.currentBook.section(this.section)
+            //     //     if (sectionInfo && sectionInfo.href) {
+            //     //         return this.currentBook.navigation.get(sectionInfo.href).label
+            //     //     }
+            //     // }
+            //     return this.section ? this.navigation[this.section].label : ''
+            // }
         },
         methods: {
             prevSection () {
