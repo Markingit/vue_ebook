@@ -1,147 +1,91 @@
+<!-- 书城首页组件 -->
 <template>
-  <div class="book-home">
-    <search-bar ref="searchBar"></search-bar>
-    <!-- <div class="book-list-wrapper" v-show="!ifShowSearchPage || !ifShowHotSearch" ref="bookListWrapper">
+  <div class="store-home">
+    <search-bar></search-bar>
+    <flap-card :data="random"></flap-card>
+    <scroll :top="scrollTop" @onScroll="onScroll" ref="scroll">
       <div class="banner-wrapper">
-        <div class="banner" :style="bannerStyle"></div>
+        <div class="banner-img" :style="{backgroundImage:`url('${banner}')`}"></div>
       </div>
-      <guess-you-like :data="guessYouLike" ref="guessYouLike"></guess-you-like>
-      <recommend class="recommend" :data="recommend" ref="recommend"></recommend>
-      <featured class="featured" :data="featured" :titleText="$t('home.featured')" :btnText="$t('home.seeAll')"
-                ref="featured"></featured>
+      <guess-you-like :data="guessYouLike"></guess-you-like>
+      <recommend :data="recommend" class="recommend"></recommend>
+      <featured :data="featured" :titleText="$t('home.featured')" :btnText="$t('home.seeAll')" class="featured"></featured>
       <div class="category-list-wrapper" v-for="(item, index) in categoryList" :key="index">
         <category-book :data="item"></category-book>
       </div>
-      <category class="category" :data="categories"></category>
-    </div>
-    <flap-card v-if="ifFlapCardShow"
-               @close="closeFlapCard"
-               :data="random"
-               ref="flapCard"></flap-card> -->
+      <category class="categories" :data="categories"></category>
+    </scroll>
   </div>
 </template>
 
-<script type="text/ecmascript-6">
-//   import FlapCard from '@/components/home/flapCard'
-  import SearchBar from '@/components/home/searchBar'
-//   import GuessYouLike from '@/components/home/guessYouLike'
-//   import Recommend from '@/components/home/recommend'
-//   import Featured from '@/components/home/featured'
-//   import CategoryBook from '@/components/home/categoryBook'
-//   import Category from '@/components/home/category'
-//   import { home2 } from '@/api/book'
-//   import { realPx } from '@/utils/utils'
-//   import { getLocalStorage, setLocalStorage, getHome, saveHome } from '@/utils/localStorage'
+<script>
+  import SearchBar from '../../components/home/searchBar'
+  import Scroll from '../../components/common/Scroll'
+  import FlapCard from '../../components/home/FlapCard'
+  import { storeHomeMixin } from '../../utils/mixin'
+  import { home } from '../../api/store'
+  import GuessYouLike from '../../components/home/GuessYouLike'
+  import Recommend from '../../components/home/Recommend'
+  import Featured from '../../components/home/Featured'
+  import CategoryBook from '../../components/home/CategoryBook'
+  import Category from '../../components/home/Category'
 
   export default {
+    mixins: [storeHomeMixin],
     components: {
-    //   Category,
-    //   CategoryBook,
-    //   Featured,
-    //   FlapCard,
+      Category,
+      CategoryBook,
+      Featured,
+      Recommend,
+      GuessYouLike,
       SearchBar,
-    //   GuessYouLike,
-    //   Recommend
+      Scroll,
+      FlapCard
     },
     data () {
       return {
-        isBack: false,
-        ifFlapCardShow: false,
-        ifShowSearchPage: false,
-        ifShowHotSearch: true,
-        data: null,
+        scrollTop: 94,
+        random: null,
+        banner: '',
         guessYouLike: null,
-        bannerStyle: null,
         recommend: null,
         featured: null,
         categoryList: null,
-        categories: null,
-        random: null,
-        randomList: null,
-        bookListOffsetY: 0
+        categories: null
       }
     },
     methods: {
-      onBack () {
-        this.isBack = true
-      },
-      handleBookListScroll (e) {
-        const target = e.target
-        if (target) {
-          this.bookListOffsetY = target.scrollTop
-          if (target.scrollTop > 0) {
-            if (this.$refs.searchBar) {
-              this.$refs.searchBar.showSearchPage()
-              this.$refs.searchBar.showShadow()
-              this.ifShowHotSearch = false
-            }
-          } else {
-            if (this.$refs.searchBar) {
-              this.$refs.searchBar.hideSearchPage()
-            }
-          }
+      // 处理滚动事件
+      onScroll (offsetY) {
+        // 设置vuex的offsetY
+        // SearchBar组件会进行监听
+        this.setOffsetY(offsetY)
+        if (offsetY > 0) {
+          // 如果滚动超过0，则隐藏标题，滚动条距顶部为52像素
+          this.scrollTop = 52
+        } else {
+          // 如果滚动为0，则显示标题，滚动条距顶部为94像素
+          this.scrollTop = 94
         }
-      },
-      showFlapCard () {
-        this.ifFlapCardShow = true
-        const randomNumber = parseInt(Math.random() * this.randomList.length)
-        this.random = this.randomList[randomNumber]
-        this.$nextTick(() => {
-          this.$refs.flapCard.startAnimation()
-        })
-      },
-      closeFlapCard () {
-        this.$refs.flapCard.stopAnimation()
-        this.ifFlapCardShow = false
-      },
-      parseHomeData (data) {
-        this.data = data
-        this.guessYouLike = data.guessYouLike
-        this.recommend = data.recommend
-        this.featured = data.featured
-        this.categoryList = data.categoryList
-        this.categories = data.categories
-        this.randomList = data.random
-        this.bannerStyle = {
-          backgroundImage: 'url(' + data.banner + ')'
-        }
-        this.$nextTick(() => {
-          if (this.bookListOffsetY) {
-            this.$refs.bookListWrapper.scrollTo(0, this.bookListOffsetY)
-          }
-        })
+        // 刷新滚动条
+        this.$refs.scroll.refresh()
       }
     },
     mounted () {
-    //   const home = getHome()
-    //   if (home) {
-    //     this.parseHomeData(home)
-    //   } else {
-    //     home2().then(response => {
-    //       if (response.status === 200 && response.data) {
-    //         this.parseHomeData(response.data)
-    //         saveHome(response.data)
-    //       }
-    //     })
-    //   }
-    //   this.$refs.bookListWrapper.style.height = window.innerHeight - realPx(52) + 'px'
-    //   this.$refs.bookListWrapper.addEventListener('scroll', this.handleBookListScroll)
-    //   this.bookListOffsetY = getLocalStorage('offsetY')
-    },
-    beforeRouteEnter (to, from, next) {
-      next(vm => {
-        if (from.path === '/book-store/list' && from.query.keyword) {
-          vm.ifShowSearchPage = true
-          vm.$refs.searchBar.setKeyword(from.query.keyword)
+      // 通过API获取首页数据
+      home().then(response => {
+        if (response && response.status === 200) {
+          const data = response.data
+          const randomIndex = Math.floor(Math.random() * data.random.length)
+          this.random = data.random[randomIndex]
+          this.banner = data.banner
+          this.guessYouLike = data.guessYouLike
+          this.recommend = data.recommend
+          this.featured = data.featured
+          this.categoryList = data.categoryList
+          this.categories = data.categories
         }
       })
-    },
-    beforeDestroy () {
-    //   if (this.bookListOffsetY && !this.isBack) {
-    //     setLocalStorage('offsetY', this.bookListOffsetY)
-    //   } else {
-    //     setLocalStorage('offsetY', 0)
-    //   }
     }
   }
 </script>
@@ -149,44 +93,31 @@
 <style lang="scss" rel="stylesheet/scss" scoped>
   @import "../../assets/styles/global";
 
-  .book-home {
-    position: relative;
+  .store-home {
     width: 100%;
     height: 100%;
-    background: #fff;
-    font-size: px2rem(16);
-    color: #666;
-    .book-list-wrapper {
+    .banner-wrapper {
       width: 100%;
-      overflow-x: hidden;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      &::-webkit-scrollbar {
-        display: none;
-      }
-      .banner-wrapper {
+      padding: px2rem(10);
+      box-sizing: border-box;
+      .banner-img {
         width: 100%;
-        padding: px2rem(10);
-        box-sizing: border-box;
-        .banner {
-          width: 100%;
-          height: px2rem(150);
-          background-repeat: no-repeat;
-          background-size: 100% 100%;
-        }
+        height: px2rem(150);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
       }
-      .recommend {
-        margin-top: px2rem(20);
-      }
-      .featured {
-        margin-top: px2rem(20);
-      }
-      .category-list-wrapper {
-        margin-top: px2rem(20);
-      }
-      .category {
-        margin-top: px2rem(20);
-      }
+    }
+    .recommend {
+      margin-top: px2rem(20);
+    }
+    .featured {
+      margin-top: px2rem(20);
+    }
+    .category-list-wrapper {
+      margin-top: px2rem(20);
+    }
+    .categories {
+      margin-top: px2rem(20);
     }
   }
 </style>
