@@ -27,14 +27,14 @@ const routes = [
         path: 'home',
         component: () => import('../views/store/StoreHome.vue')
       },
-      // {
-      //   path: 'list',
-      //   component: () => import('./views/store/StoreList.vue')
-      // },
-      // {
-      //   path: 'detail',
-      //   component: () => import('./views/store/StoreDetail.vue')
-      // },
+      {
+        path: 'list',
+        component: () => import('../views/store/StoreList.vue')
+      },
+      {
+        path: 'detail',
+        component: () => import('../views/store/StoreDetail.vue')
+      },
       // {
       //   path: 'speaking',
       //   component: () => import('./views/store/StoreSpeaking.vue')

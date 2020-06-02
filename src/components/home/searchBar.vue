@@ -2,11 +2,9 @@
   <div>
     <div class="search-bar" :class="{'hide-title': !titleVisible, 'hide-shadow': !shadowVisible}">
       <transition name="title-move">
-        <div class="search-bar-title-wrapper" v-show="titleVisible">
-          <div class="title-text-wrapper">
-            <span class="title-text title">{{$t('home.title')}}</span>
-          </div>
-          <div class="title-icon-shake-wrapper" @click="showFlapCard">
+        <div class="title-search-page-wrapper" v-show="titleVisible">
+          <span class="title-text">{{$t('home.title')}}</span>
+          <div class="icon-shake-wrapper" @click="showFlapCard">
             <span class="icon-shake icon"></span>
           </div>
         </div>
@@ -74,6 +72,8 @@
         // })
       },
       showFlapCard () {
+        console.log('aaaaa')
+        debugger
         this.setFlapCardVisible(true)
       },
       back () {
@@ -231,4 +231,26 @@
   .icon {
     font-size: px2rem(20);
   }
+
+  .title-search-page-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 105;
+        width: 100%;
+        height: px2rem(42);
+        @include center;
+        .title-text {
+          font-weight: bold;
+        }
+        .icon-shake-wrapper {
+          position: absolute;
+          right: 0;
+          top: 0;
+          z-index: 110;
+          padding-right: px2rem(15);
+          height: 100%;
+          @include center;
+        }
+      }
 </style>

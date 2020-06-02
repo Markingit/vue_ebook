@@ -337,9 +337,9 @@
       // 处理用户滚动事件，确定标题阴影的显示状态
       onScroll (offsetY) {
         if (offsetY > realPx(42)) {
-          this.$refs.title.showShadow()
+          // this.$refs.title.showShadow()
         } else {
-          this.$refs.title.hideShadow()
+          // this.$refs.title.hideShadow()
         }
       }
     },
