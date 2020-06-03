@@ -22,6 +22,7 @@
   import ShelfFooter from '../../components/shelf/ShelfFooter'
   import { shelf } from '../../api/store'
   import { appendAddToShelf } from '../../utils/store'
+import { getBookShelf, saveBookShelf } from '../../utils/localstorage'
 
   export default {
     mixins: [storeShelfMixin],
@@ -52,11 +53,19 @@
         this.setOffsetY(offsetY)
       },
       getShelfList () {
-        shelf().then(response => {
-          if (response.status === 200 && response.data && response.data.bookList) {
-            this.setShelfList(appendAddToShelf(response.data.bookList))
-          }
-        })
+        let shelList = getBookShelf()
+        if (!shelList) {
+          shelf().then(response => {
+            if (response.status === 200 && response.data && response.data.bookList) {
+              shelList = appendAddToShelf(response.data.bookList)
+              saveBookShelf(shelList)
+              this.setShelfList(appendAddToShelf(shelList))
+            }
+          })
+        } else {
+          this.setShelfList(shelList)
+        }
+        
       }
     },
     mounted () {

@@ -165,7 +165,7 @@
         this.setShelfList([])
         this.setShelfSelected([])
         this.getShelfList()
-        // this.simpleToast(this.$t('shelf.clearCacheSuccess'))
+        this.simpleToast(this.$t('shelf.clearCacheSuccess'))
       }
     }
   }
